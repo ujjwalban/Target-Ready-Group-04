@@ -1,20 +1,27 @@
 package com.targetindia.EcomStreaming.entites;
+import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-import java.util.ArrayList;
+import java.util.List;
 import java.util.UUID;
 
 @Getter
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
+@Entity
+@Table(name = "customer_order")
 public class Order {
+    @Id
     private UUID orderID;
+    @ManyToOne
     private Customer customer;
-    private ArrayList<Product> products  = new ArrayList<>();
+    @OneToMany(cascade = CascadeType.ALL)
+    @JoinColumn(name = "order_id")
+    private List<Product> products;
     private double totalCost;
 
     @Override
