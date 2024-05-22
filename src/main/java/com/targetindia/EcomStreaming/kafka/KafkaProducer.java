@@ -4,7 +4,7 @@ import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.kafka.support.KafkaHeaders;
 import org.springframework.stereotype.Service;
 
-import com.targetindia.EcomStreaming.entites.Orders;
+import com.targetindia.EcomStreaming.entites.Order;
 
 import org.springframework.messaging.Message;
 import org.springframework.messaging.support.MessageBuilder;
@@ -17,15 +17,15 @@ public class KafkaProducer {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(KafkaProducer.class);
     
-    public KafkaTemplate<String, Orders> kafkaTemplate;
+    public KafkaTemplate<String, Order> kafkaTemplate;
 
-    public KafkaProducer(KafkaTemplate<String, Orders> kafkaTemplate) {
+    public KafkaProducer(KafkaTemplate<String, Order> kafkaTemplate) {
         this.kafkaTemplate = kafkaTemplate;
     }
 
-    public void sendMessage(Orders data) {
+    public void sendMessage(Order data) {
         LOGGER.info(String.format("message sent --> %s", data.toString()));
-        Message<Orders> message = MessageBuilder
+        Message<Order> message = MessageBuilder
                 .withPayload(data)
                 .setHeader(KafkaHeaders.TOPIC, "Orders")
                 .build();
