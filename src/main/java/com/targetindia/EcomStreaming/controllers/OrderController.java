@@ -9,6 +9,7 @@ import org.springframework.web.bind.annotation.RestController;
 import com.targetindia.EcomStreaming.entites.Order;
 import com.targetindia.EcomStreaming.kafka.KafkaProducer;
 
+import java.util.UUID;
 
 @RestController
 @RequestMapping("/api/v1/target")
@@ -22,6 +23,7 @@ public class OrderController {
  
     @PostMapping("/order")
     public ResponseEntity<String> publish(@RequestBody Order order) {
+        order.setOrderID(UUID.randomUUID());
         kafkaProducer.sendMessage(order);
         return ResponseEntity.ok("Order is placed");
     }
