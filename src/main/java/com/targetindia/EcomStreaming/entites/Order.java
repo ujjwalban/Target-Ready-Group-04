@@ -5,32 +5,31 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+import java.util.ArrayList;
 import java.util.List;
-import java.util.UUID;
 
 @Getter
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
 @Entity
-@Table(name = "customer_order")
+@Table(name = "order_table")
 public class Order {
     @Id
-    private UUID orderID;
-    @ManyToOne
-    private Customer customer;
-    @OneToMany(cascade = CascadeType.ALL)
-    @JoinColumn(name = "order_id")
-    private List<Product> products;
-    private double totalCost;
-
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "OrderID")
+    private Long orderID;
+    @Column(name = "CustomerID")
+    private Long customerID;
+    @Column(name = "ProductList")
+    @ElementCollection
+    private List<Product> productList = new ArrayList<>();
     @Override
     public String toString() {
         return "Orders{" +
                 "orderID=" + orderID +
-                ", customer=" + customer.toString() +
-                ", products=" + products.toString() +
-                ", totalCost=" + totalCost +
+                ", customer=" + customerID +
+                ", products=" + productList +
                 '}';
     }
 }

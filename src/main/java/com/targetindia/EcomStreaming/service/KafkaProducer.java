@@ -1,4 +1,4 @@
-package com.targetindia.EcomStreaming.kafka;
+package com.targetindia.EcomStreaming.service;
 
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.kafka.support.KafkaHeaders;
