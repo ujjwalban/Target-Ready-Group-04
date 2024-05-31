@@ -17,7 +17,7 @@ public class KafkaProducer {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(KafkaProducer.class);
     
-    public KafkaTemplate<String, Order> kafkaTemplate;
+    private final KafkaTemplate<String, Order> kafkaTemplate;
 
     public KafkaProducer(KafkaTemplate<String, Order> kafkaTemplate) {
         this.kafkaTemplate = kafkaTemplate;
