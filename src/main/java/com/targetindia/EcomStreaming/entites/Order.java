@@ -1,4 +1,5 @@
 package com.targetindia.EcomStreaming.entites;
+import com.targetindia.EcomStreaming.model.Product;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;

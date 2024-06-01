@@ -1,7 +1,7 @@
 package com.targetindia.EcomStreaming.service;
 
 //import com.targetindia.EcomStreaming.entites.Customer;
-//import com.targetindia.EcomStreaming.entites.Product;
+//import com.targetindia.EcomStreaming.model.Product;
 //import com.targetindia.EcomStreaming.repository.CustomerRepository;
 import com.targetindia.EcomStreaming.repository.OrderRepository;
 //import com.targetindia.EcomStreaming.repository.ProductRepository;
