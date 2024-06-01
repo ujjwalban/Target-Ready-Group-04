@@ -18,4 +18,9 @@ public class OrderServiceImpl implements OrderService {
         return (List<Order>)
                 orderRepository.findAll();
     }
+
+    @Override
+    public Order fetchOrderListByID(Long orderID){
+        return orderRepository.findById(orderID).get();
+    }
 }

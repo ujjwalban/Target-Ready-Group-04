@@ -56,4 +56,9 @@ public class OrderController {
         return orderService.fetchOrderList();
     }
 
+    @GetMapping("order/{id}")
+    public Order fetchOrderListByID(@PathVariable("id") Long id){
+        return orderService.fetchOrderListByID(id);
+    }
+
 }
