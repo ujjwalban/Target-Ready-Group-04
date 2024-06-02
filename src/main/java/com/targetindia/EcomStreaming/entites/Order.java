@@ -7,6 +7,7 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 @Getter
@@ -25,6 +26,7 @@ public class Order {
     @Column(name = "ProductList")
     @ElementCollection
     private List<Product> productList = new ArrayList<>();
+    private Date date = new Date();
     @Override
     public String toString() {
         return "Orders{" +
