@@ -1,4 +1,5 @@
 package com.targetindia.EcomStreaming.controllers;
+import com.targetindia.EcomStreaming.exceptions.DatabaseConnError;
 import com.targetindia.EcomStreaming.model.Product;
 import com.targetindia.EcomStreaming.exceptions.InvalidCustomerId;
 import com.targetindia.EcomStreaming.exceptions.InvalidProductId;
@@ -32,15 +33,12 @@ public class OrderController {
 
     @PostMapping("/order")
     public ResponseEntity<String> publish(@RequestBody Order order) {
-        if(order.getCustomerID()==null){
-            throw new InvalidCustomerId("Customer ID is not specified");
-        }
         for(Product product: order.getProductList()){
-            if(product.getProductID()==null){
-                throw new InvalidProductId("Product ID is not specified");
+            if(product.getProductID() > 95){
+                throw new InvalidProductId("Product ID should be less than 95");
             }
-            if(product.getProductQuantity()==null || product.getProductQuantity()>productService.fetchProductStockLevel(product.getProductID())){
-                throw new InvalidProductQuantity("Product Quantity is not specified or Products Quantity is not available");
+            if(product.getProductQuantity() > productService.fetchProductStockLevel(product.getProductID())){
+                throw new InvalidProductQuantity("Product Quantity only left:- "+productService.fetchProductStockLevel(product.getProductID()));
             }
         }
         for(Product product: order.getProductList()){
@@ -53,12 +51,22 @@ public class OrderController {
 
     @GetMapping("/allOrders")
     public List<Order> fetchOrderList(){
-        return orderService.fetchOrderList();
+        try {
+            return orderService.fetchOrderList();
+        }
+        catch (DatabaseConnError e){
+            throw new DatabaseConnError("Kindly Check Database Connection");
+        }
     }
 
-    @GetMapping("order/{id}")
-    public List<Order> fetchOrderListByID(@PathVariable("id") Long id){
-        return orderService.fetchOrderListByID(id);
+    @GetMapping("order/{CustomerId}")
+    public List<Order> fetchOrderListByCustomerID(@PathVariable("CustomerId") Long CustomerId){
+        try{
+            return orderService.fetchOrderListByID(CustomerId);
+        }
+        catch (DatabaseConnError e){
+            throw new InvalidCustomerId("Kindly Check Database Connection");
+        }
     }
 
 }

@@ -1,12 +1,15 @@
 package com.targetindia.EcomStreaming.controllers;
 
+import com.targetindia.EcomStreaming.exceptions.DatabaseConnError;
 import com.targetindia.EcomStreaming.exceptions.InvalidCustomerId;
 import com.targetindia.EcomStreaming.exceptions.InvalidProductId;
 import com.targetindia.EcomStreaming.exceptions.InvalidProductQuantity;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseStatus;
+import org.springframework.web.bind.annotation.RestControllerAdvice;
 
+@RestControllerAdvice
 public class GlobalExceptionHandler {
   @ExceptionHandler(InvalidCustomerId.class)
   @ResponseStatus(code = HttpStatus.BAD_REQUEST)
@@ -23,6 +26,12 @@ public class GlobalExceptionHandler {
   @ExceptionHandler(InvalidProductQuantity.class)
   @ResponseStatus(code = HttpStatus.BAD_REQUEST)
   public String productQuantityException(InvalidProductQuantity e){
+    return e.getMessage();
+  }
+
+  @ExceptionHandler(DatabaseConnError.class)
+  @ResponseStatus(code = HttpStatus.BAD_REQUEST)
+  public String databaseConnError(InvalidProductQuantity e){
     return e.getMessage();
   }
 }
