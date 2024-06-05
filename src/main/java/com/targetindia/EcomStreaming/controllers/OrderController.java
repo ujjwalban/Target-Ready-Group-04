@@ -19,6 +19,7 @@ import java.util.List;
 @Transactional
 @RestController
 @RequestMapping("/api/v1/target")
+@CrossOrigin("*")
 public class OrderController {
     private final KafkaProducer kafkaProducer;
     public OrderController(KafkaProducer kafkaProducer) {
