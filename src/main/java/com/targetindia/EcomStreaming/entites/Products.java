@@ -20,5 +20,4 @@ public class Products {
     private Long StockLevel;
     private double ProductPrice;
 
-
 }
