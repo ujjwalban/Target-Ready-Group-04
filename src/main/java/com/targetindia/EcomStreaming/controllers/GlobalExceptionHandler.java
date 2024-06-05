@@ -29,9 +29,4 @@ public class GlobalExceptionHandler {
     return e.getMessage();
   }
 
-  @ExceptionHandler(DatabaseConnError.class)
-  @ResponseStatus(code = HttpStatus.BAD_REQUEST)
-  public String databaseConnError(InvalidProductQuantity e){
-    return e.getMessage();
-  }
 }

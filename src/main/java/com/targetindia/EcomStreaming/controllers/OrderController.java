@@ -35,9 +35,6 @@ public class OrderController {
     @PostMapping("/order")
     public ResponseEntity<String> publish(@RequestBody Order order) {
         for(Product product: order.getProductList()){
-            if(product.getProductID() > 95){
-                throw new InvalidProductId("Product ID should be less than 95");
-            }
             if(product.getProductQuantity() > productService.fetchProductStockLevel(product.getProductID())){
                 throw new InvalidProductQuantity("Product Quantity only left:- "+productService.fetchProductStockLevel(product.getProductID()));
             }
@@ -52,22 +49,13 @@ public class OrderController {
 
     @GetMapping("/allOrders")
     public List<Order> fetchOrderList(){
-        try {
             return orderService.fetchOrderList();
-        }
-        catch (DatabaseConnError e){
-            throw new DatabaseConnError("Kindly Check Database Connection");
-        }
+
     }
 
     @GetMapping("order/{CustomerId}")
     public List<Order> fetchOrderListByCustomerID(@PathVariable("CustomerId") Long CustomerId){
-        try{
             return orderService.fetchOrderListByID(CustomerId);
-        }
-        catch (DatabaseConnError e){
-            throw new InvalidCustomerId("Kindly Check Database Connection");
-        }
     }
 
 }

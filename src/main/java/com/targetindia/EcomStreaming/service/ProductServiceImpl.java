@@ -13,7 +13,12 @@ public class ProductServiceImpl implements ProductService{
     private ProductRepository productRepository;
     @Override
     public Long fetchProductStockLevel(Long ProductId) {
-        return productRepository.findById(ProductId).get().getStockLevel();
+        try{
+            return productRepository.findById(ProductId).get().getStockLevel();
+        }
+        catch (NullPointerException e){
+            throw new NullPointerException("Invalid ID");
+        }
     }
     @Override
     public void setProductStockLevel(Long ProductId,Long NewStockLevel) {
