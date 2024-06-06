@@ -27,7 +27,7 @@ public class Order {
     private Long customerID;
 
     @Column(name = "ProductList")
-    @ElementCollection
+    @ElementCollection(fetch = FetchType.EAGER)
     @CollectionTable(name = "order_product_list", joinColumns = @JoinColumn(name = "OrderID"))
     private List<Product> productList = new ArrayList<>();
 
