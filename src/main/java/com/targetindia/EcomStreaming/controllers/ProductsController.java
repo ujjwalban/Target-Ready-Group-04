@@ -1,8 +1,6 @@
 package com.targetindia.EcomStreaming.controllers;
 
-import com.targetindia.EcomStreaming.entites.Order;
 import com.targetindia.EcomStreaming.entites.Products;
-import com.targetindia.EcomStreaming.exceptions.DatabaseConnError;
 import com.targetindia.EcomStreaming.service.ProductService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;

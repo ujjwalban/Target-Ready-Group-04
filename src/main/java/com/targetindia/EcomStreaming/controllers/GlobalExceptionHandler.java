@@ -1,6 +1,5 @@
 package com.targetindia.EcomStreaming.controllers;
 
-import com.targetindia.EcomStreaming.exceptions.DatabaseConnError;
 import com.targetindia.EcomStreaming.exceptions.InvalidCustomerId;
 import com.targetindia.EcomStreaming.exceptions.InvalidProductId;
 import com.targetindia.EcomStreaming.exceptions.InvalidProductQuantity;
