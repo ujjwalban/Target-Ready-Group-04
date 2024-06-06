@@ -16,6 +16,6 @@ public class CustomerServiceImpl implements CustomerService {
     @Override
     public Optional<Customer> getCustomerByID(Long customerID) {
         return Optional.ofNullable(customerRepository.findById(customerID)
-                .orElseThrow(() -> new CustomerNotFoundException("Customer with ID " + customerID + " not found")));
+                .orElseThrow(() -> new CustomerNotFoundException("User Not Found")));
     }
 }

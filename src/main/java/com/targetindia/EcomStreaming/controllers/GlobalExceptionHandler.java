@@ -1,8 +1,6 @@
 package com.targetindia.EcomStreaming.controllers;
 
-import com.targetindia.EcomStreaming.exceptions.CustomerIdException;
-import com.targetindia.EcomStreaming.exceptions.ProductIdException;
-import com.targetindia.EcomStreaming.exceptions.ProductQuantityException;
+import com.targetindia.EcomStreaming.exceptions.*;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseStatus;
@@ -28,4 +26,15 @@ public class GlobalExceptionHandler {
     return e.getMessage();
   }
 
+  @ExceptionHandler(CustomerNotFoundException.class)
+  @ResponseStatus(code = HttpStatus.BAD_REQUEST)
+  public static String customerNotFoundException(CustomerNotFoundException e){
+    return e.getMessage();
+  }
+
+  @ExceptionHandler(ProductNotFoundException.class)
+  @ResponseStatus(code = HttpStatus.BAD_REQUEST)
+  public static String productNotFoundException(ProductNotFoundException e){
+    return e.getMessage();
+  }
 }

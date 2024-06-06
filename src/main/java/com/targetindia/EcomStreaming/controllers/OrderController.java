@@ -1,9 +1,11 @@
 package com.targetindia.EcomStreaming.controllers;
 import com.targetindia.EcomStreaming.entites.Customer;
+import com.targetindia.EcomStreaming.entites.Products;
 import com.targetindia.EcomStreaming.exceptions.CustomerIdException;
+import com.targetindia.EcomStreaming.exceptions.CustomerNotFoundException;
+import com.targetindia.EcomStreaming.exceptions.ProductNotFoundException;
 import com.targetindia.EcomStreaming.model.Product;
 import com.targetindia.EcomStreaming.exceptions.ProductQuantityException;
-//import com.targetindia.EcomStreaming.service.ArchivedOrdersService;
 import com.targetindia.EcomStreaming.service.*;
 import jakarta.transaction.Transactional;
 import org.slf4j.Logger;
@@ -39,8 +41,10 @@ public class OrderController {
     private static final Logger LOGGER = LoggerFactory.getLogger(OrderController.class);
 
     @PostMapping("/order")
-    public ResponseEntity<String> publish(@RequestBody Order order) throws ProductQuantityException {
+    public ResponseEntity<String> publish(@RequestBody Order order) throws ProductQuantityException,CustomerIdException,ProductNotFoundException {
+        Optional<Customer> customer = customerService.getCustomerByID(order.getCustomerID());
         for(Product product: order.getProductList()){
+            Optional<Products> prod = productService.getProductByID(product.getProductID());
             Long productId = product.getProductID();
             Long productQuantity = product.getProductQuantity();
             Long productStockLevel = productService.fetchProductStockLevel(productId);
@@ -69,13 +73,9 @@ public class OrderController {
     }
 
     @GetMapping("order/{CustomerId}")
-    public List<Order> fetchOrderListByCustomerID(@PathVariable("CustomerId") Long CustomerId) throws CustomerIdException {
-        Optional<Customer> customer = customerService.getCustomerByID(CustomerId);
-        if(customer.isEmpty()) {
-            LOGGER.error("Invalid Customer ID: " + CustomerId);
-            throw new CustomerIdException("Invalid Customer ID: " + CustomerId);
-        }
-        return orderService.fetchOrderListByID(CustomerId);
+    public List<Order> fetchOrderListByCustomerID(@PathVariable("CustomerId") Long CustomerID) throws CustomerIdException, CustomerNotFoundException {
+        Optional<Customer> customer = customerService.getCustomerByID(CustomerID);
+        return orderService.fetchOrderListByID(CustomerID);
     }
 
 }
