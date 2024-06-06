@@ -18,12 +18,10 @@ public class ProductServiceImpl implements ProductService{
     private ProductRepository productRepository;
     @Override
     public Long fetchProductStockLevel(Long ProductId) throws ProductIdException {
-        try{
-            return productRepository.findById(ProductId).get().getStockLevel();
-        }
-        catch (ProductIdException e){
+        if(!(1 <= ProductId && ProductId <= 96)) {
             throw new ProductIdException("Invalid Product ID:" + ProductId);
         }
+        return productRepository.findById(ProductId).get().getStockLevel();
     }
     @Override
     public void setProductStockLevel(Long ProductId, Long NewStockLevel) throws StockLevelException {

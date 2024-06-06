@@ -68,12 +68,11 @@ public class OrderController {
 
     @GetMapping("order/{CustomerId}")
     public List<Order> fetchOrderListByCustomerID(@PathVariable("CustomerId") Long CustomerId) throws CustomerIdException {
-        try {
-            return orderService.fetchOrderListByID(CustomerId);
-        } catch (Exception e) {
+        if(!(1L <= CustomerId && CustomerId <= 95L)) {
             LOGGER.error("Invalid Customer ID: " + CustomerId);
             throw new CustomerIdException("Invalid Customer ID: " + CustomerId);
         }
+        return orderService.fetchOrderListByID(CustomerId);
     }
 
 }
