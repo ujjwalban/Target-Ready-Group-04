@@ -1,10 +1,6 @@
 package com.targetindia.EcomStreaming.service;
 
-//import com.targetindia.EcomStreaming.entites.Customer;
-//import com.targetindia.EcomStreaming.model.Product;
-//import com.targetindia.EcomStreaming.repository.CustomerRepository;
 import com.targetindia.EcomStreaming.repository.OrderRepository;
-//import com.targetindia.EcomStreaming.repository.ProductRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -24,7 +20,7 @@ public class KafkaConsumer {
     @KafkaListener(topics = "Orders", groupId = "myGroup", containerFactory = "kafkaListenerContainerFactory")
     @Transactional
     public void listen(Order order) {
-        LOGGER.info(String.format("Message Recived -> %s", order.toString()));
+        LOGGER.info(String.format("Message Received --> %s", order.toString()));
         orderRepository.save(order);
     }
 

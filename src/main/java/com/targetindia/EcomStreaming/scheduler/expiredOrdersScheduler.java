@@ -11,9 +11,9 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 
 @Component
-public class expiredOrdersSceduler {
+public class expiredOrdersScheduler {
 
-    private static final Logger log = LoggerFactory.getLogger(expiredOrdersSceduler.class);
+    private static final Logger log = LoggerFactory.getLogger(expiredOrdersScheduler.class);
     @Autowired
     private ArchivedOrdersService archivedOrdersService;
     private static final SimpleDateFormat dateFormat = new SimpleDateFormat("HH:mm:ss");
