@@ -1,11 +1,10 @@
 package com.targetindia.EcomStreaming.controllers;
+import com.targetindia.EcomStreaming.entites.Customer;
 import com.targetindia.EcomStreaming.exceptions.CustomerIdException;
 import com.targetindia.EcomStreaming.model.Product;
 import com.targetindia.EcomStreaming.exceptions.ProductQuantityException;
 //import com.targetindia.EcomStreaming.service.ArchivedOrdersService;
-import com.targetindia.EcomStreaming.service.KafkaConsumer;
-import com.targetindia.EcomStreaming.service.OrderService;
-import com.targetindia.EcomStreaming.service.ProductService;
+import com.targetindia.EcomStreaming.service.*;
 import jakarta.transaction.Transactional;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -13,9 +12,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import com.targetindia.EcomStreaming.entites.Order;
-import com.targetindia.EcomStreaming.service.KafkaProducer;
 
 import java.util.List;
+import java.util.Optional;
 
 
 @Transactional
@@ -33,6 +32,9 @@ public class OrderController {
 
     @Autowired
     private ProductService productService;
+
+    @Autowired
+    private CustomerService customerService;
 
     private static final Logger LOGGER = LoggerFactory.getLogger(OrderController.class);
 
@@ -68,12 +70,12 @@ public class OrderController {
 
     @GetMapping("order/{CustomerId}")
     public List<Order> fetchOrderListByCustomerID(@PathVariable("CustomerId") Long CustomerId) throws CustomerIdException {
-        try {
-            return orderService.fetchOrderListByID(CustomerId);
-        } catch (Exception e) {
+        Optional<Customer> customer = customerService.getCustomerByID(CustomerId);
+        if(customer.isEmpty()) {
             LOGGER.error("Invalid Customer ID: " + CustomerId);
             throw new CustomerIdException("Invalid Customer ID: " + CustomerId);
         }
+        return orderService.fetchOrderListByID(CustomerId);
     }
 
 }
