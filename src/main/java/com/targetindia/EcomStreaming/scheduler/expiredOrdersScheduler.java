@@ -12,15 +12,11 @@ import java.util.Date;
 
 @Component
 public class expiredOrdersScheduler {
-
-    private static final Logger log = LoggerFactory.getLogger(expiredOrdersScheduler.class);
     @Autowired
     private ArchivedOrdersService archivedOrdersService;
-    private static final SimpleDateFormat dateFormat = new SimpleDateFormat("HH:mm:ss");
 
-    @Scheduled(fixedRate = 5000)
+    @Scheduled(cron = "@daily")
     public void archiveExpired(){
-        log.info("The time is now {}", dateFormat.format(new Date()));
         archivedOrdersService.archiveExpiredOrders();
     }
 }
