@@ -8,17 +8,6 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 
 @RestControllerAdvice
 public class GlobalExceptionHandler {
-  @ExceptionHandler(CustomerIdException.class)
-  @ResponseStatus(code = HttpStatus.BAD_REQUEST)
-  public static String customerIdException(CustomerIdException e){
-    return e.getMessage();
-  }
-
-  @ExceptionHandler(ProductIdException.class)
-  @ResponseStatus(code = HttpStatus.BAD_REQUEST)
-  public static String productIdException(ProductIdException e){
-    return e.getMessage();
-  }
 
   @ExceptionHandler(ProductQuantityException.class)
   @ResponseStatus(code = HttpStatus.BAD_REQUEST)

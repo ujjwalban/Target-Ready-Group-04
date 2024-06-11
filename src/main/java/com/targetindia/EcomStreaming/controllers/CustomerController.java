@@ -2,7 +2,6 @@ package com.targetindia.EcomStreaming.controllers;
 
 import com.targetindia.EcomStreaming.entites.Customer;
 import com.targetindia.EcomStreaming.entites.Order;
-import com.targetindia.EcomStreaming.exceptions.CustomerIdException;
 import com.targetindia.EcomStreaming.exceptions.CustomerNotFoundException;
 import com.targetindia.EcomStreaming.service.CustomerService;
 import com.targetindia.EcomStreaming.service.OrderService;
@@ -24,8 +23,8 @@ public class CustomerController {
     @Autowired
     private CustomerService customerService;
 
-    @GetMapping("{CustomerId}/getAllOrder")
-    public List<Order> fetchOrderListByCustomerID(@PathVariable("CustomerId") Long CustomerID) throws CustomerIdException, CustomerNotFoundException {
+    @GetMapping("/{CustomerId}/getAllOrder")
+    public List<Order> fetchOrderListByCustomerID(@PathVariable("CustomerId") Long CustomerID) throws CustomerNotFoundException {
         Optional<Customer> customer = customerService.getCustomerByID(CustomerID);
         return orderService.fetchOrderListByID(CustomerID);
     }

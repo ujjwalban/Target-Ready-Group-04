@@ -1,5 +1,6 @@
 package com.targetindia.EcomStreaming;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.targetindia.EcomStreaming.controllers.OrderController;
 import com.targetindia.EcomStreaming.entites.Order;
 import com.targetindia.EcomStreaming.model.Product;
@@ -42,7 +43,6 @@ public class OrderControllerTest {
 
     @Test
     public void testPublishOrder() throws Exception {
-        // Arrange
         Order order = new Order();
         order.setCustomerID(1L);
 
@@ -59,15 +59,17 @@ public class OrderControllerTest {
 
         Mockito.doNothing().when(kafkaProducer).sendMessage(Mockito.any(Order.class));
 
+        ObjectMapper objectMapper = new ObjectMapper();
+        String orderJson = objectMapper.writeValueAsString(order);
+
         mockMvc.perform(post("/api/v1/target/order")
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content("{\"customerID\": 1, \"productList\": [{\"productID\": 1, \"productQuantity\": 2}]}"))
+                        .content(orderJson))
                 .andExpect(status().isOk());
     }
 
     @Test
     public void testPublishOrder_ProductQuantityException() throws Exception {
-        // Arrange
         Order order = new Order();
         order.setCustomerID(1L);
 
@@ -81,9 +83,12 @@ public class OrderControllerTest {
 
         Mockito.when(productService.fetchProductStockLevel(1L)).thenReturn(10L);
 
+        ObjectMapper objectMapper = new ObjectMapper();
+        String orderJson = objectMapper.writeValueAsString(order);
+
         mockMvc.perform(post("/api/v1/target/order")
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content("{\"customerID\": 1, \"productList\": [{\"productID\": 1, \"productQuantity\": 12}]}"))
+                        .content(orderJson))
                 .andExpect(status().isBadRequest());
     }
 }

@@ -2,8 +2,6 @@ package com.targetindia.EcomStreaming.service;
 
 
 import com.targetindia.EcomStreaming.entites.Products;
-import com.targetindia.EcomStreaming.exceptions.CustomerNotFoundException;
-import com.targetindia.EcomStreaming.exceptions.ProductIdException;
 import com.targetindia.EcomStreaming.exceptions.ProductNotFoundException;
 import com.targetindia.EcomStreaming.exceptions.StockLevelException;
 import com.targetindia.EcomStreaming.repository.ProductRepository;
@@ -28,12 +26,12 @@ public class ProductServiceImpl implements ProductService{
     }
 
     @Override
-    public Long fetchProductStockLevel(Long ProductId) throws ProductIdException {
+    public Long fetchProductStockLevel(Long ProductId) throws ProductNotFoundException {
         try{
             return productRepository.findById(ProductId).get().getStockLevel();
         }
         catch (NoSuchElementException e){
-            throw new ProductIdException("Invalid Product ID:" + ProductId);
+            throw new ProductNotFoundException("Invalid Product ID:" + ProductId);
         }
     }
     @Override

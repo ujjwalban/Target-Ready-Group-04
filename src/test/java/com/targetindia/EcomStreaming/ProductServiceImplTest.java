@@ -1,7 +1,7 @@
 package com.targetindia.EcomStreaming;
 
 import com.targetindia.EcomStreaming.entites.Products;
-import com.targetindia.EcomStreaming.exceptions.ProductIdException;
+import com.targetindia.EcomStreaming.exceptions.ProductNotFoundException;
 import com.targetindia.EcomStreaming.exceptions.StockLevelException;
 import com.targetindia.EcomStreaming.repository.ProductRepository;
 import com.targetindia.EcomStreaming.service.ProductServiceImpl;
@@ -13,7 +13,6 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.NoSuchElementException;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -38,7 +37,7 @@ public class ProductServiceImplTest {
     }
 
     @Test
-    public void testFetchProductStockLevel_ValidId() throws ProductIdException {
+    public void testFetchProductStockLevel_ValidId() throws ProductNotFoundException {
         when(productRepository.findById(1L)).thenReturn(Optional.of(product));
         Long stockLevel = productService.fetchProductStockLevel(1L);
         assertEquals(10L, stockLevel);
@@ -47,14 +46,14 @@ public class ProductServiceImplTest {
     @Test
     public void testFetchProductStockLevel_InvalidId() {
         when(productRepository.findById(2L)).thenReturn(Optional.empty());
-        ProductIdException exception = assertThrows(ProductIdException.class, () -> {
+        ProductNotFoundException exception = assertThrows(ProductNotFoundException.class, () -> {
             productService.fetchProductStockLevel(2L);
         });
         assertEquals("Invalid Product ID:2", exception.getMessage());
     }
 
     @Test
-    public void testSetProductStockLevel_Valid() throws StockLevelException, ProductIdException {
+    public void testSetProductStockLevel_Valid() throws StockLevelException, ProductNotFoundException {
         when(productRepository.findById(1L)).thenReturn(Optional.of(product));
         productService.setProductStockLevel(1L, 5L);
         verify(productRepository, times(1)).findById(1L);
