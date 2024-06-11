@@ -3,9 +3,11 @@ package com.targetindia.EcomStreaming;
 import com.targetindia.EcomStreaming.controllers.OrderController;
 import com.targetindia.EcomStreaming.entites.Order;
 import com.targetindia.EcomStreaming.model.Product;
+import com.targetindia.EcomStreaming.service.CustomerService;
 import com.targetindia.EcomStreaming.service.KafkaProducer;
 import com.targetindia.EcomStreaming.service.OrderService;
 import com.targetindia.EcomStreaming.service.ProductService;
+import jakarta.persistence.EntityManager;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -30,10 +32,13 @@ public class OrderControllerTest {
     private KafkaProducer kafkaProducer;
 
     @MockBean
-    private OrderService orderService;
+    private ProductService productService;
 
     @MockBean
-    private ProductService productService;
+    private CustomerService customerService;
+
+    @MockBean
+    private EntityManager entityManager;
 
     @Test
     public void testPublishOrder() throws Exception {
@@ -69,7 +74,7 @@ public class OrderControllerTest {
         List<Product> productList = new ArrayList<>();
         Product product = new Product();
         product.setProductID(1L);
-        product.setProductQuantity(12L);  // Quantity more than stock level
+        product.setProductQuantity(12L);
         productList.add(product);
 
         order.setProductList(productList);
@@ -79,6 +84,6 @@ public class OrderControllerTest {
         mockMvc.perform(post("/api/v1/target/order")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content("{\"customerID\": 1, \"productList\": [{\"productID\": 1, \"productQuantity\": 12}]}"))
-                .andExpect(status().isInternalServerError());
+                .andExpect(status().isBadRequest());
     }
 }

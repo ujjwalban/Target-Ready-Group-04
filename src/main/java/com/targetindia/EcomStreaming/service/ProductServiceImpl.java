@@ -11,6 +11,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.NoSuchElementException;
 import java.util.Optional;
 
 
@@ -31,7 +32,7 @@ public class ProductServiceImpl implements ProductService{
         try{
             return productRepository.findById(ProductId).get().getStockLevel();
         }
-        catch (ProductIdException e){
+        catch (NoSuchElementException e){
             throw new ProductIdException("Invalid Product ID:" + ProductId);
         }
     }
