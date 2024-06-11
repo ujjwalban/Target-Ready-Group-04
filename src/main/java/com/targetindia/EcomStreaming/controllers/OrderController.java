@@ -2,7 +2,6 @@ package com.targetindia.EcomStreaming.controllers;
 import com.targetindia.EcomStreaming.entites.Customer;
 import com.targetindia.EcomStreaming.entites.Products;
 import com.targetindia.EcomStreaming.exceptions.CustomerIdException;
-import com.targetindia.EcomStreaming.exceptions.CustomerNotFoundException;
 import com.targetindia.EcomStreaming.exceptions.ProductNotFoundException;
 import com.targetindia.EcomStreaming.model.Product;
 import com.targetindia.EcomStreaming.exceptions.ProductQuantityException;
@@ -15,7 +14,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import com.targetindia.EcomStreaming.entites.Order;
 
-import java.util.List;
 import java.util.Optional;
 
 
@@ -65,17 +63,6 @@ public class OrderController {
         }
         kafkaProducer.sendMessage(order);
         return ResponseEntity.ok("Order is placed");
-    }
-
-    @GetMapping("/allOrders")
-    public List<Order> fetchOrderList() {
-        return orderService.fetchOrderList();
-    }
-
-    @GetMapping("order/{CustomerId}")
-    public List<Order> fetchOrderListByCustomerID(@PathVariable("CustomerId") Long CustomerID) throws CustomerIdException, CustomerNotFoundException {
-        Optional<Customer> customer = customerService.getCustomerByID(CustomerID);
-        return orderService.fetchOrderListByID(CustomerID);
     }
 
 }
