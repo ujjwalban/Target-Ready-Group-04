@@ -7,8 +7,6 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.Date;
 import java.util.List;
 
 @Getter
@@ -30,28 +28,6 @@ public class Order {
     @ElementCollection(fetch = FetchType.EAGER)
     @CollectionTable(name = "order_product_list", joinColumns = @JoinColumn(name = "OrderID"))
     private List<Product> productList = new ArrayList<>();
-
-    @Temporal(TemporalType.TIMESTAMP)
-    private Date date = new Date();
-
-    @Temporal(TemporalType.TIMESTAMP)
-    private Date expiryDate;
-
-    public void setExpiryDate() {
-        Calendar calendar = Calendar.getInstance();
-        calendar.setTime(this.date);
-        calendar.add(Calendar.MINUTE, 2);
-        this.expiryDate = calendar.getTime();
-    }
-
-    @PrePersist
-    @PreUpdate
-    protected void onCreateOrUpdate() {
-        if (this.date == null) {
-            this.date = new Date();
-        }
-        setExpiryDate();
-    }
 
     @Override
     public String toString() {
