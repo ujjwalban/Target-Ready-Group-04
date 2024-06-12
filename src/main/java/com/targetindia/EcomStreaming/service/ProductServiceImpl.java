@@ -1,13 +1,10 @@
 package com.targetindia.EcomStreaming.service;
 
-
 import com.targetindia.EcomStreaming.entites.Products;
 import com.targetindia.EcomStreaming.exceptions.ProductNotFoundException;
-import com.targetindia.EcomStreaming.exceptions.StockLevelException;
 import com.targetindia.EcomStreaming.repository.ProductRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-
 import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.Optional;
@@ -35,10 +32,7 @@ public class ProductServiceImpl implements ProductService{
         }
     }
     @Override
-    public void setProductStockLevel(Long ProductId, Long NewStockLevel) throws StockLevelException {
-        if(NewStockLevel <= 0) {
-            throw new StockLevelException("Invalid Stock Level: " + NewStockLevel);
-        }
+    public void setProductStockLevel(Long ProductId, Long NewStockLevel){
         productRepository.findById(ProductId).get().setStockLevel(NewStockLevel);
     }
 
