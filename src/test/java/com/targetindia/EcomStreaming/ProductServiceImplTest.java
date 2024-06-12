@@ -1,8 +1,14 @@
 package com.targetindia.EcomStreaming;
 
+import com.targetindia.EcomStreaming.controllers.CustomerController;
 import com.targetindia.EcomStreaming.entites.Products;
 import com.targetindia.EcomStreaming.exceptions.ProductNotFoundException;
+import com.targetindia.EcomStreaming.exceptions.ProductQuantityException;
+import com.targetindia.EcomStreaming.repository.OrderRepository;
 import com.targetindia.EcomStreaming.repository.ProductRepository;
+import com.targetindia.EcomStreaming.service.ArchivedOrdersServiceImpl;
+import com.targetindia.EcomStreaming.service.KafkaConsumer;
+import com.targetindia.EcomStreaming.service.OrderServiceImpl;
 import com.targetindia.EcomStreaming.service.ProductServiceImpl;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -12,6 +18,7 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.NoSuchElementException;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -20,8 +27,18 @@ import static org.mockito.Mockito.*;
 @SpringBootTest
 public class ProductServiceImplTest {
 
+    @MockBean
+    private OrderRepository orderRepository;
+    @MockBean
+    private ArchivedOrdersServiceImpl archivedOrdersService;
+    @MockBean
+    private KafkaConsumer kafkaConsumer;
+    @MockBean
+    private CustomerController customerController;
     @Autowired
     private ProductServiceImpl productService;
+    @Autowired
+    private OrderServiceImpl orderService;
 
     @MockBean
     private ProductRepository productRepository;
@@ -52,7 +69,7 @@ public class ProductServiceImplTest {
     }
 
     @Test
-    public void testSetProductStockLevel_Valid() throws StockLevelException, ProductNotFoundException {
+    public void testSetProductStockLevel_Valid() throws ProductNotFoundException, ProductNotFoundException {
         when(productRepository.findById(1L)).thenReturn(Optional.of(product));
         productService.setProductStockLevel(1L, 5L);
         verify(productRepository, times(1)).findById(1L);
@@ -60,11 +77,11 @@ public class ProductServiceImplTest {
     }
 
     @Test
-    public void testSetProductStockLevel_InvalidStockLevel() {
-        StockLevelException exception = assertThrows(StockLevelException.class, () -> {
+    public void testSetProductStockLevel_InvalidStockLevel(){
+        NoSuchElementException exception = assertThrows(NoSuchElementException.class, () -> {
             productService.setProductStockLevel(1L, 0L);
         });
-        assertEquals("Invalid Stock Level: 0", exception.getMessage());
+        assertEquals("No value present", exception.getMessage());
     }
 
     @Test

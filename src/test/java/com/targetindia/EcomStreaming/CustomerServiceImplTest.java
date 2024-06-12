@@ -1,8 +1,11 @@
 package com.targetindia.EcomStreaming;
 
+import com.targetindia.EcomStreaming.controllers.CustomerController;
 import com.targetindia.EcomStreaming.entites.Customer;
 import com.targetindia.EcomStreaming.exceptions.CustomerNotFoundException;
 import com.targetindia.EcomStreaming.repository.CustomerRepository;
+import com.targetindia.EcomStreaming.repository.OrderRepository;
+import com.targetindia.EcomStreaming.service.ArchivedOrdersServiceImpl;
 import com.targetindia.EcomStreaming.service.CustomerServiceImpl;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
@@ -21,6 +24,12 @@ public class CustomerServiceImplTest {
     @Autowired
     private CustomerServiceImpl customerService;
 
+    @MockBean
+    private OrderRepository orderRepository;
+    @MockBean
+    private ArchivedOrdersServiceImpl archivedOrdersService;
+    @MockBean
+    private CustomerController customerController;
     @MockBean
     private CustomerRepository customerRepository;
 

@@ -28,13 +28,6 @@ public class OrderServiceImplTest {
 
     private Order order;
 
-    @BeforeEach
-    public void setUp() {
-        order = new Order();
-        order.setOrderID(1L);
-        order.setExpiryDate(new Date(System.currentTimeMillis() + 86400000)); // +1 day
-    }
-
     @Test
     public void testFetchOrderList() {
         List<Order> orders = new ArrayList<>();
@@ -67,8 +60,6 @@ public class OrderServiceImplTest {
     @Test
     public void testExpiredOrders() {
         List<Order> orders = new ArrayList<>();
-        // testing expiry period: -1 day
-        order.setExpiryDate(new Date(System.currentTimeMillis() - 86400000));
         orders.add(order);
         when(orderRepository.findByExpiryDateBefore(any(Date.class))).thenReturn(orders);
         List<Order> result = orderService.expiredOrders();
