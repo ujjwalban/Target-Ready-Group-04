@@ -28,10 +28,4 @@ public class OrderServiceImpl implements OrderService {
         }
     }
 
-    @Override
-    public List<Order> expiredOrders(){
-        Date currentDate = new Date();
-        return orderRepository.findByExpiryDateBefore(currentDate);
-    }
-
 }

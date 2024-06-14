@@ -6,7 +6,10 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+
+import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 
@@ -32,6 +35,18 @@ public class Order {
 
     @Temporal(TemporalType.TIMESTAMP)
     private Date date = new Date();
+
+    @Temporal(TemporalType.TIMESTAMP)
+    @Transient
+    private Date expiryDate;
+
+    public void setExpiryDate(LocalDateTime localDateTime) {
+        Calendar calendar = Calendar.getInstance();
+        calendar.setTime(this.date);
+        calendar.add(Calendar.MINUTE, 2);
+        this.expiryDate = calendar.getTime();
+    }
+
 
     @Override
     public String toString() {
