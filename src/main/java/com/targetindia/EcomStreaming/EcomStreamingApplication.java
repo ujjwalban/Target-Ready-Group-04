@@ -9,7 +9,6 @@ import org.springframework.scheduling.annotation.EnableScheduling;
 @EnableScheduling
 @EnableJpaRepositories(basePackages = "com.targetindia.EcomStreaming.repository")
 public class EcomStreamingApplication {
-
 	public static void main(String[] args) {
 		SpringApplication.run(EcomStreamingApplication.class, args);
 	}

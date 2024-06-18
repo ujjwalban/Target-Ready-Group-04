@@ -4,6 +4,7 @@ import com.targetindia.EcomStreaming.entites.Order;
 import com.targetindia.EcomStreaming.exceptions.OrderIdException;
 import com.targetindia.EcomStreaming.repository.OrderRepository;
 import com.targetindia.EcomStreaming.service.OrderServiceImpl;
+import com.targetindia.EcomStreaming.service.ArchivedOrdersServiceImpl;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -61,8 +62,8 @@ public class OrderServiceImplTest {
     public void testExpiredOrders() {
         List<Order> orders = new ArrayList<>();
         orders.add(order);
-        when(orderRepository.findByExpiryDateBefore(any(Date.class))).thenReturn(orders);
-        List<Order> result = orderService.expiredOrders();
+        when(ArchivedOrdersServiceImpl.getOrdersExpiringBefore(any(Date.class))).thenReturn(orders);
+        List<Order> result = ArchivedOrdersServiceImpl.getAllOrders();
         assertEquals(1, result.size());
         assertEquals(order, result.get(0));
     }

@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.targetindia.EcomStreaming.controllers.ProductsController;
 import com.targetindia.EcomStreaming.entites.Products;
 import com.targetindia.EcomStreaming.service.ProductService;
+import jakarta.persistence.EntityManagerFactory;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
@@ -27,6 +28,9 @@ public class ProductsControllerTest {
 
     @MockBean
     private ProductService productService;
+
+    @MockBean
+    private EntityManagerFactory entityManagerFactory;
 
 
     @Test

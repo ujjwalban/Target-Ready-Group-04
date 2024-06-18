@@ -19,27 +19,27 @@ import java.util.stream.Collectors;
 public class ArchivedOrdersServiceImpl implements ArchivedOrdersService {
 
     @Autowired
-    private OrderRepository orderRepository;
+    private static OrderRepository orderRepository;
 
     @Autowired
     private ArchivedOrdersRepository archivedOrderRepository;
 
     private static final Logger logger = LoggerFactory.getLogger(ArchivedOrdersServiceImpl.class);
 
-    public List<Order> getAllOrders() {
+    public static List<Order> getAllOrders() {
         List<Order> orders = orderRepository.findAll();
         orders.forEach(order -> order.setExpiryDate(calculateExpiryDate(order)));
         return orders;
     }
 
-    public List<Order> getOrdersExpiringBefore(Date dateTime) {
+    public static List<Order> getOrdersExpiringBefore(Date dateTime) {
         List<Order> orders = getAllOrders();
         return orders.stream()
                 .filter(order -> order.getExpiryDate().after(new Date(30)))
                 .collect(Collectors.toList());
     }
 
-    private LocalDateTime calculateExpiryDate(Order order) {
+    private static LocalDateTime calculateExpiryDate(Order order) {
         // Define your logic to calculate the expiry date for each order
         return LocalDateTime.now().plusDays(30); // For example, set expiry date to 30 days from now
     }

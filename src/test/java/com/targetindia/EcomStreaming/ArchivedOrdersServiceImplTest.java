@@ -45,7 +45,7 @@ public class ArchivedOrdersServiceImplTest {
         List<Order> expiredOrders = new ArrayList<>();
         expiredOrders.add(expiredOrder);
 
-        when(orderRepository.findByExpiryDateBefore(any(Date.class))).thenReturn(expiredOrders);
+        when(archivedOrdersService.getOrdersExpiringBefore(any(Date.class))).thenReturn(expiredOrders);
 
         archivedOrdersService.archiveExpiredOrders();
 
@@ -57,7 +57,7 @@ public class ArchivedOrdersServiceImplTest {
     public void testArchiveExpiredOrders_NoExpiredOrders() {
         List<Order> expiredOrders = new ArrayList<>();
 
-        when(orderRepository.findByExpiryDateBefore(any(Date.class))).thenReturn(expiredOrders);
+        when(archivedOrdersService.getOrdersExpiringBefore(any(Date.class))).thenReturn(expiredOrders);
 
         archivedOrdersService.archiveExpiredOrders();
 
