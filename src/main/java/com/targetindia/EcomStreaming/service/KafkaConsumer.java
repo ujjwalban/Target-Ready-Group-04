@@ -17,12 +17,10 @@ public class KafkaConsumer {
     @Autowired
     private OrderRepository orderRepository;
 
-    @KafkaListener(topics = "Orders", groupId = "myGroup", containerFactory = "kafkaListenerContainerFactory")
+    @KafkaListener(topics = "Orders", groupId = "myGroup", containerFactory = "kafkaListenerContainerFactory", concurrency = "3")
     @Transactional
     public void listen(Order order) {
         LOGGER.info(String.format("Message Received --> %s", order.toString()));
         orderRepository.save(order);
     }
-
-
 }

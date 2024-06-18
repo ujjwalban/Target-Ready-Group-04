@@ -1,84 +1,145 @@
 package com.targetindia.EcomStreaming;
 
 import com.targetindia.EcomStreaming.controllers.OrderController;
+import com.targetindia.EcomStreaming.entites.Customer;
 import com.targetindia.EcomStreaming.entites.Order;
+import com.targetindia.EcomStreaming.exceptions.CustomerIdException;
+import com.targetindia.EcomStreaming.exceptions.ProductQuantityException;
 import com.targetindia.EcomStreaming.model.Product;
+import com.targetindia.EcomStreaming.service.CustomerService;
 import com.targetindia.EcomStreaming.service.KafkaProducer;
 import com.targetindia.EcomStreaming.service.OrderService;
 import com.targetindia.EcomStreaming.service.ProductService;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.mockito.Mockito;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
-import org.springframework.http.MediaType;
-import org.springframework.test.web.servlet.MockMvc;
+import org.mockito.*;
+import org.springframework.http.ResponseEntity;
 
-import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.CompletionException;
 
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.*;
 
-@WebMvcTest(OrderController.class)
-public class OrderControllerTest {
+class OrderControllerTest {
 
-    @Autowired
-    private MockMvc mockMvc;
-
-    @MockBean
+    @Mock
     private KafkaProducer kafkaProducer;
 
-    @MockBean
+    @Mock
     private OrderService orderService;
 
-    @MockBean
+    @Mock
     private ProductService productService;
 
-    @Test
-    public void testPublishOrder() throws Exception {
-        // Arrange
-        Order order = new Order();
-        order.setCustomerID(1L);
+    @Mock
+    private CustomerService customerService;
 
-        List<Product> productList = new ArrayList<>();
-        Product product = new Product();
-        product.setProductID(1L);
-        product.setProductQuantity(2L);
-        productList.add(product);
+    @InjectMocks
+    private OrderController orderController;
 
-        order.setProductList(productList);
-
-        Mockito.when(productService.fetchProductStockLevel(1L)).thenReturn(10L);
-        Mockito.doNothing().when(productService).setProductStockLevel(1L, 8L);
-
-        Mockito.doNothing().when(kafkaProducer).sendMessage(Mockito.any(Order.class));
-
-        mockMvc.perform(post("/api/v1/target/order")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content("{\"customerID\": 1, \"productList\": [{\"productID\": 1, \"productQuantity\": 2}]}"))
-                .andExpect(status().isOk());
+    @BeforeEach
+    void setUp() {
+        MockitoAnnotations.openMocks(this);
     }
 
     @Test
-    public void testPublishOrder_ProductQuantityException() throws Exception {
+    void testPublish() throws ProductQuantityException {
         // Arrange
-        Order order = new Order();
-        order.setCustomerID(1L);
-
-        List<Product> productList = new ArrayList<>();
         Product product = new Product();
         product.setProductID(1L);
-        product.setProductQuantity(12L);  // Quantity more than stock level
-        productList.add(product);
+        product.setProductQuantity(5L);
 
-        order.setProductList(productList);
+        Order order = new Order();
+        order.setOrderID(1L);
+        order.setProductList(Collections.singletonList(product));
 
-        Mockito.when(productService.fetchProductStockLevel(1L)).thenReturn(10L);
+        when(productService.fetchProductStockLevel(any(Long.class)))
+                .thenReturn(CompletableFuture.completedFuture(10L));
 
-        mockMvc.perform(post("/api/v1/target/order")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content("{\"customerID\": 1, \"productList\": [{\"productID\": 1, \"productQuantity\": 12}]}"))
-                .andExpect(status().isInternalServerError());
+        // Act
+        orderController.publish(order);
+
+        // Assert
+        verify(productService, times(1)).setProductStockLevel(1L, 5L);
+        verify(kafkaProducer, times(1)).sendMessage(order);
+    }
+
+    @Test
+    void testPublishProductQuantityException() {
+        // Arrange
+        Product product = new Product();
+        product.setProductID(1L);
+        product.setProductQuantity(15L);
+
+        Order order = new Order();
+        order.setOrderID(1L);
+        order.setProductList(Collections.singletonList(product));
+
+        when(productService.fetchProductStockLevel(any(Long.class)))
+                .thenReturn(CompletableFuture.completedFuture(10L));
+
+        // Act & Assert
+        CompletionException exception = assertThrows(CompletionException.class, () -> orderController.publish(order));
+        assertEquals(ProductQuantityException.class, exception.getCause().getClass());
+        assertEquals("Product ID: 1's quantity is more than stock level. Stock level left: 10", exception.getCause().getMessage());
+    }
+
+
+    @Test
+    void testFetchOrderList() {
+        // Arrange
+        Order order1 = new Order();
+        order1.setOrderID(1L);
+        Order order2 = new Order();
+        order2.setOrderID(2L);
+
+        when(orderService.fetchOrderList()).thenReturn(Arrays.asList(order1, order2));
+
+        // Act
+        List<Order> result = orderController.fetchOrderList();
+
+        // Assert
+        assertEquals(2, result.size());
+        assertEquals(1L, result.get(0).getOrderID());
+        assertEquals(2L, result.get(1).getOrderID());
+    }
+
+    @Test
+    void testFetchOrderListByCustomerID() {
+        // Arrange
+        Customer customer = new Customer();
+        customer.setCustomerID(1L);
+
+        Order order1 = new Order();
+        order1.setOrderID(1L);
+        Order order2 = new Order();
+        order2.setOrderID(2L);
+
+        when(customerService.getCustomerByID(any(Long.class))).thenReturn(Optional.of(customer));
+        when(orderService.fetchOrderListByID(any(Long.class))).thenReturn(Arrays.asList(order1, order2));
+
+        // Act
+        List<Order> result = orderController.fetchOrderListByCustomerID(1L);
+
+        // Assert
+        assertEquals(2, result.size());
+        assertEquals(1L, result.get(0).getOrderID());
+        assertEquals(2L, result.get(1).getOrderID());
+    }
+
+    @Test
+    void testFetchOrderListByCustomerIDCustomerIdException() {
+        // Arrange
+        when(customerService.getCustomerByID(any(Long.class))).thenReturn(Optional.empty());
+
+        // Act & Assert
+        assertThrows(CustomerIdException.class, () -> orderController.fetchOrderListByCustomerID(1L));
     }
 }
