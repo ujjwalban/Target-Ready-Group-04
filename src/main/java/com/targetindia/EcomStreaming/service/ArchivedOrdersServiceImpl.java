@@ -11,6 +11,7 @@ import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -19,30 +20,31 @@ import java.util.stream.Collectors;
 public class ArchivedOrdersServiceImpl implements ArchivedOrdersService {
 
     @Autowired
-    private static OrderRepository orderRepository;
+    private OrderRepository orderRepository;
 
     @Autowired
     private ArchivedOrdersRepository archivedOrderRepository;
 
     private static final Logger logger = LoggerFactory.getLogger(ArchivedOrdersServiceImpl.class);
 
-    public static List<Order> getAllOrders() {
-        List<Order> orders = orderRepository.findAll();
-        orders.forEach(order -> order.setExpiryDate(calculateExpiryDate(order)));
-        return orders;
+    public List<Order> getOrdersExpiringBefore(Date currentDate) {
+        List<Order> filteredOrders = new ArrayList<>();
+        List<Order> history = orderRepository.findAll();
+        // Subtract 30 days from the current date
+        Calendar calendar = Calendar.getInstance();
+        calendar.setTime(currentDate);
+        calendar.add(Calendar.DAY_OF_YEAR, -30);
+        Date date30DaysAgo = calendar.getTime();
+        for(Order o:history){
+            Date orderDate = o.getDate();
+            if(orderDate.before(date30DaysAgo)){
+                filteredOrders.add(o);
+            }
+        }
+        return filteredOrders;
     }
 
-    public static List<Order> getOrdersExpiringBefore(Date dateTime) {
-        List<Order> orders = getAllOrders();
-        return orders.stream()
-                .filter(order -> order.getExpiryDate().after(new Date(30)))
-                .collect(Collectors.toList());
-    }
 
-    private static LocalDateTime calculateExpiryDate(Order order) {
-        // Define your logic to calculate the expiry date for each order
-        return LocalDateTime.now().plusDays(30); // For example, set expiry date to 30 days from now
-    }
     @Override
     public void archiveExpiredOrders() {
         Date currentDate = new Date();
