@@ -21,6 +21,13 @@ public class CustomerServiceImpl implements CustomerService {
         return Optional.ofNullable(customerRepository.findById(customerID)
                 .orElseThrow(() -> new CustomerNotFoundException("User Not Found")));
     }
+
+    @Override
+    public Optional<Customer> getCustomerByUsername(String customerUsername) {
+        return Optional.ofNullable(customerRepository.findByUsername(customerUsername)
+                .orElseThrow(() -> new CustomerNotFoundException("User Not Found")));
+    }
+
     public Customer findByUsername(String username) {
         return customerRepository.findByUsername(username).orElse(null);
     }

@@ -20,14 +20,14 @@ import java.util.stream.Collectors;
 public class ArchivedOrdersServiceImpl implements ArchivedOrdersService {
 
     @Autowired
-    private OrderRepository orderRepository;
+    private static OrderRepository orderRepository;
 
     @Autowired
     private ArchivedOrdersRepository archivedOrderRepository;
 
     private static final Logger logger = LoggerFactory.getLogger(ArchivedOrdersServiceImpl.class);
 
-    public List<Order> getOrdersExpiringBefore(Date currentDate) {
+    public static List<Order> getOrdersExpiringBefore(Date currentDate) {
         List<Order> filteredOrders = new ArrayList<>();
         List<Order> history = orderRepository.findAll();
         // Subtract 30 days from the current date
@@ -42,6 +42,10 @@ public class ArchivedOrdersServiceImpl implements ArchivedOrdersService {
             }
         }
         return filteredOrders;
+    }
+
+    public static List<Order> getAllOrders() {
+        return new ArrayList<>();
     }
 
 

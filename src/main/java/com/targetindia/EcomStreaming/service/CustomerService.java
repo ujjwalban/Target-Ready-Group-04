@@ -7,7 +7,7 @@ import java.util.Optional;
 
 public interface CustomerService {
     public Optional<Customer> getCustomerByID(Long customerID);
-
+    public Optional<Customer> getCustomerByUsername(String CustomerUsername);
     public Customer findByUsername(String username);
 
     public String findCustomerPassword(Long CustomerID);

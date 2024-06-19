@@ -34,7 +34,8 @@ public class OrderController {
 
     @PostMapping("/order")
     public ResponseEntity<String> publish(@RequestBody Order order) throws ProductQuantityException, ProductNotFoundException {
-        Optional<Customer> customer = customerService.getCustomerByID(order.getCustomerID());
+        Optional<Customer> customer = customerService.getCustomerByUsername(order.getCustomerUsername());
+        order.setCustomerID(customerService.findByUsername(order.getCustomerUsername()).getCustomerID());
         for (Product product : order.getProductList()) {
             Optional<Products> prod = productService.getProductByID(product.getProductID());
             Long productId = product.getProductID();

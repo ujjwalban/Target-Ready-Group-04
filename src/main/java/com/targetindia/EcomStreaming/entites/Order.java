@@ -25,6 +25,9 @@ public class Order {
     @Column(name = "OrderID")
     private Long orderID;
 
+    @Column(name = "CustomerUsername")
+    private String customerUsername;
+
     @Column(name = "CustomerID")
     private Long customerID;
 
@@ -35,17 +38,6 @@ public class Order {
 
     @Temporal(TemporalType.TIMESTAMP)
     private Date date = new Date();
-
-//    @Temporal(TemporalType.TIMESTAMP)
-//    @Transient
-//    private Date expiryDate;
-//
-//    public void setExpiryDate(LocalDateTime localDateTime) {
-//        Calendar calendar = Calendar.getInstance();
-//        calendar.setTime(this.date);
-//        calendar.add(Calendar.MINUTE, 2);
-//        this.expiryDate = calendar.getTime();
-//    }
 
     @Override
     public String toString() {
