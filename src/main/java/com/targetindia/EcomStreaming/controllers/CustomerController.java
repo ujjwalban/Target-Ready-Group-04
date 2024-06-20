@@ -28,22 +28,24 @@ public class CustomerController {
     @Autowired
     private CustomerAddressService customerAddressService;
 
-    @GetMapping("/{CustomerId}/getAllOrder")
-    public List<Order> fetchOrderListByCustomerID(@PathVariable("CustomerId") Long CustomerID) throws CustomerNotFoundException {
-        Optional<Customer> customer = customerService.getCustomerByID(CustomerID);
-        return orderService.fetchOrderListByID(CustomerID);
+    @GetMapping("/{CustomerUsername}/getAllOrder")
+    public List<Order> fetchOrderListByCustomerID(@PathVariable("CustomerUsername") String customerUsername) throws CustomerNotFoundException {
+        Optional<Customer> customer = customerService.getCustomerByUsername(customerUsername);
+        return orderService.fetchOrderListByUsername(customerUsername);
     }
 
     @PostMapping("/auth/login")
     public ResponseEntity<String> validateCustomerCredentials(@RequestBody Map<String, String> credentials) {
         String username = credentials.get("username");
         String password = credentials.get("password");
+        System.out.println(username);
+        System.out.println(password);
 
-        if (customerService.validateCustomer(username, password)) {
-            return ResponseEntity.ok("Successfully Login");
-        }
         if (customerService.findByUsername(username) == null) {
             return ResponseEntity.ok("Username not found");
+        }
+        if (customerService.validateCustomer(username, password)) {
+            return ResponseEntity.ok("Successfully Login");
         }
         return ResponseEntity.ok("Invalid credentials");
     }
@@ -53,16 +55,13 @@ public class CustomerController {
         System.out.println(customer.getFirstName());
         System.out.println(customer);
         if(customerService.findByUsername(customer.getUsername())!=null){
-            ResponseEntity.ofNullable("Username already exists");
-            throw new IllegalArgumentException("Username is taken");
+            ResponseEntity.ok("Username already exists");
         }
         if(customerService.checkEmailExists(customer.getEmail())){
-            ResponseEntity.ofNullable("Email already exists");
-            throw new IllegalArgumentException("Username is taken");
+            ResponseEntity.ok("Email already exists");
         }
         if(customerService.checkPhoneNumberExists(customer.getPhoneNumber())){
-            ResponseEntity.ofNullable("PhoneNumber already exists");
-            throw new IllegalArgumentException("PhoneNumber is taken");
+            ResponseEntity.ok("PhoneNumber already exists");
         }
         customerService.createCustomer(customer.getUsername(),customer.getEmail(), customer.getPassword(), customer.getFirstName(), customer.getLastName(), customer.getPhoneNumber(),customer.getAddress());
         return ResponseEntity.ok("Successfully Signed up");

@@ -7,4 +7,6 @@ public interface OrderService {
 
     List<Order> fetchOrderList();
     List<Order> fetchOrderListByID(Long id);
+
+    List<Order> fetchOrderListByUsername(String customerUsername);
 }

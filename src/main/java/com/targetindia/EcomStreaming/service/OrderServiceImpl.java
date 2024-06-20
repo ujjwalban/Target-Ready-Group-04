@@ -28,4 +28,10 @@ public class OrderServiceImpl implements OrderService {
         }
     }
 
+    @Override
+    public List<Order> fetchOrderListByUsername(String customerUsername) {
+        return orderRepository.getAllOrderByUsername(customerUsername);
+    }
+
+
 }

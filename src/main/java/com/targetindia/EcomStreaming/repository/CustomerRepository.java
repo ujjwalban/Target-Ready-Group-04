@@ -19,5 +19,6 @@ public interface CustomerRepository extends JpaRepository<Customer, Long> {
     @Query("SELECT COUNT(c) > 0 FROM Customer c WHERE c.email = :email")
     boolean findByEmail(@Param("email") String email);
     @Query("SELECT COUNT(c) > 0 FROM Customer c WHERE c.phoneNumber = :phoneNumber")
-    boolean findByPhoneNumber(@Param("phoneNumber") String PhoneNumber);
+    boolean findByPhoneNumber(@Param("phoneNumber") String phoneNumber);
+
 }

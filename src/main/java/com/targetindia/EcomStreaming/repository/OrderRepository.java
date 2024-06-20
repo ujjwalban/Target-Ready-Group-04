@@ -15,4 +15,9 @@ public interface OrderRepository extends JpaRepository<Order, Long> {
     @Query("select u from Order u where u.customerID = :customerID")
     public List<Order> getHistory(@Param("customerID") Long customerID);
 
+    @Query("select u from Order u where u.customerUsername = :customerUsername")
+    public List<Order> getAllOrderByUsername(@Param("customerUsername") String customerUsername);
+
+
+
 }
