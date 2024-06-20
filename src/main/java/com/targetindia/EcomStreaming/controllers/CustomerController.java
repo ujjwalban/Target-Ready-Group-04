@@ -51,23 +51,18 @@ public class CustomerController {
     }
 
     @PostMapping("/auth/signup")
-    public ResponseEntity<String> saveCustomer(@RequestBody Customer customer){
-        System.out.println(customer.getFirstName());
-        System.out.println(customer);
-        if(customerService.findByUsername(customer.getUsername())!=null){
-            ResponseEntity.ok("Username already exists");
+    public ResponseEntity<String> saveCustomer(@RequestBody Customer customer) {
+        try {
+          customerService.createCustomer(customer.getUsername(),customer.getEmail(), customer.getPassword(), customer.getFirstName(), customer.getLastName(), customer.getPhoneNumber(),customer.getAddress());
         }
-        if(customerService.checkEmailExists(customer.getEmail())){
-            ResponseEntity.ok("Email already exists");
+        catch (Exception e)
+        {
+          return ResponseEntity.ok("User Already Exists");
         }
-        if(customerService.checkPhoneNumberExists(customer.getPhoneNumber())){
-            ResponseEntity.ok("PhoneNumber already exists");
-        }
-        customerService.createCustomer(customer.getUsername(),customer.getEmail(), customer.getPassword(), customer.getFirstName(), customer.getLastName(), customer.getPhoneNumber(),customer.getAddress());
         return ResponseEntity.ok("Successfully Signed up");
     }
 
-    @PutMapping("/{username}/address")
+    @PostMapping("/{username}/address")
     public Customer updateAddress(@PathVariable("username") String username, @RequestBody Address address) {
         Optional<Customer> optionalCustomer = Optional.ofNullable(customerService.findByUsername(username));
         if (optionalCustomer.isPresent()) {

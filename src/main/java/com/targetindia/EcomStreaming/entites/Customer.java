@@ -35,7 +35,7 @@ public class Customer {
     @Column(nullable = false)
     private String lastName;
 
-    @Column(nullable = true,name = "phone_number")
+    @Column(nullable = true,name = "phone_number", unique = true)
     private String phoneNumber;
 
     @OneToOne(cascade = CascadeType.ALL)
