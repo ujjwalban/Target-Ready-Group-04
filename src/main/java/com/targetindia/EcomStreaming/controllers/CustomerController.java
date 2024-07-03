@@ -4,10 +4,10 @@ import com.targetindia.EcomStreaming.entites.Address;
 import com.targetindia.EcomStreaming.entites.Customer;
 import com.targetindia.EcomStreaming.entites.Order;
 import com.targetindia.EcomStreaming.exceptions.CustomerNotFoundException;
-import com.targetindia.EcomStreaming.repository.AddressRepository;
 import com.targetindia.EcomStreaming.service.CustomerAddressService;
 import com.targetindia.EcomStreaming.service.CustomerService;
 import com.targetindia.EcomStreaming.service.OrderService;
+import io.github.resilience4j.ratelimiter.annotation.RateLimiter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -35,11 +35,10 @@ public class CustomerController {
     }
 
     @PostMapping("/auth/login")
+    @RateLimiter(name = "userRateLimiter", fallbackMethod = "rateLimiterFallback")
     public ResponseEntity<String> validateCustomerCredentials(@RequestBody Map<String, String> credentials) {
         String username = credentials.get("username");
         String password = credentials.get("password");
-        System.out.println(username);
-        System.out.println(password);
 
         if (customerService.findByUsername(username) == null) {
             return ResponseEntity.ok("Username not found");
@@ -48,6 +47,10 @@ public class CustomerController {
             return ResponseEntity.ok("Successfully Login");
         }
         return ResponseEntity.ok("Invalid credentials");
+    }
+
+    public ResponseEntity<String> rateLimiterFallback(Map<String, String> credentials, Throwable t) {
+        return ResponseEntity.status(429).body("Too many requests, please try again later.");
     }
 
     @PostMapping("/auth/signup")
