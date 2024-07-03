@@ -1,58 +1,63 @@
 package com.targetindia.EcomStreaming;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.targetindia.EcomStreaming.controllers.ProductsController;
 import com.targetindia.EcomStreaming.entites.Products;
 import com.targetindia.EcomStreaming.service.ProductService;
-import jakarta.persistence.EntityManagerFactory;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
-import org.springframework.http.MediaType;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 
 import java.util.Arrays;
 import java.util.List;
 
-import static org.mockito.Mockito.when;
+import static org.hamcrest.Matchers.hasSize;
+import static org.mockito.Mockito.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
-@WebMvcTest(ProductsController.class)
+@ExtendWith(MockitoExtension.class)
 public class ProductsControllerTest {
 
-    @Autowired
     private MockMvc mockMvc;
 
-    @MockBean
+    @InjectMocks
+    private ProductsController productsController;
+
+    @Mock
     private ProductService productService;
 
-    @MockBean
-    private EntityManagerFactory entityManagerFactory;
-
+    @BeforeEach
+    void setUp() {
+        mockMvc = MockMvcBuilders.standaloneSetup(productsController).build();
+    }
 
     @Test
-    public void testFetchProductsList() throws Exception {
-
-        Products product1 = new Products();
-        product1.setProductID(1L);
-        product1.setProductName("Product1");
-
-        Products product2 = new Products();
-        product2.setProductID(2L);
-        product2.setProductName("Product2");
+    void testFetchProductsList() throws Exception {
+        Products product1 = new Products(1L, "Product 1", 20L, 10.0);
+        Products product2 = new Products(2L, "Product 2", 30L, 15.0);
 
         List<Products> productsList = Arrays.asList(product1, product2);
         when(productService.displayAllProducts()).thenReturn(productsList);
 
-        ObjectMapper objectMapper = new ObjectMapper();
-        String productsJson = objectMapper.writeValueAsString(productsList);
-
-        mockMvc.perform(get("/api/v1/target/allProducts")
-                        .contentType(MediaType.APPLICATION_JSON))
+        mockMvc.perform(get("/api/v1/target/allProducts"))
                 .andExpect(status().isOk())
-                .andExpect(content().json(productsJson));
+                .andExpect(content().contentType("application/json"))
+                .andExpect(jsonPath("$").isArray())
+                .andExpect(jsonPath("$", hasSize(2)))
+                .andExpect(jsonPath("$[0].productID").value(1))
+                .andExpect(jsonPath("$[0].productName").value("Product 1"))
+                .andExpect(jsonPath("$[0].stockLevel").value(20))
+                .andExpect(jsonPath("$[0].productPrice").value(10.0))
+                .andExpect(jsonPath("$[1].productID").value(2))
+                .andExpect(jsonPath("$[1].productName").value("Product 2"))
+                .andExpect(jsonPath("$[1].stockLevel").value(30))
+                .andExpect(jsonPath("$[1].productPrice").value(15.0));
+
+        verify(productService, times(1)).displayAllProducts();
     }
 }

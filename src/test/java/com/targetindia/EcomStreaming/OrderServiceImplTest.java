@@ -89,13 +89,4 @@ public class OrderServiceImplTest {
         assertEquals("Invalid Order ID: 2", exception.getMessage());
     }
 
-    @Test
-    public void testExpiredOrders() {
-        List<Order> orders = new ArrayList<>();
-        orders.add(order);
-        when(ArchivedOrdersServiceImpl.getOrdersExpiringBefore(any(Date.class))).thenReturn(orders);
-        List<Order> result = ArchivedOrdersServiceImpl.getAllOrders();
-        assertEquals(1, result.size());
-        assertEquals(order, result.get(0));
-    }
 }

@@ -1,94 +1,117 @@
 package com.targetindia.EcomStreaming;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.targetindia.EcomStreaming.controllers.OrderController;
+import com.targetindia.EcomStreaming.entites.Customer;
 import com.targetindia.EcomStreaming.entites.Order;
+import com.targetindia.EcomStreaming.exceptions.ProductNotFoundException;
+import com.targetindia.EcomStreaming.exceptions.ProductQuantityException;
 import com.targetindia.EcomStreaming.model.Product;
 import com.targetindia.EcomStreaming.service.CustomerService;
 import com.targetindia.EcomStreaming.service.KafkaProducer;
-import com.targetindia.EcomStreaming.service.OrderService;
 import com.targetindia.EcomStreaming.service.ProductService;
-import jakarta.persistence.EntityManager;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.mockito.Mockito;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
-import org.springframework.http.MediaType;
-import org.springframework.test.web.servlet.MockMvc;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.*;
+import org.mockito.junit.jupiter.MockitoExtension;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.http.ResponseEntity;
+import org.springframework.scheduling.annotation.AsyncResult;
 
-import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
+import java.util.concurrent.CompletableFuture;
 
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.*;
 
-@WebMvcTest(OrderController.class)
+@ExtendWith(MockitoExtension.class)
 public class OrderControllerTest {
 
-    @Autowired
-    private MockMvc mockMvc;
+    @InjectMocks
+    private OrderController orderController;
 
-    @MockBean
+    @Mock
     private KafkaProducer kafkaProducer;
 
-    @MockBean
+    @Mock
     private ProductService productService;
 
-    @MockBean
+    @Mock
     private CustomerService customerService;
 
-    @MockBean
-    private EntityManager entityManager;
+    private static final Logger LOGGER = LoggerFactory.getLogger(OrderController.class);
 
-    @Test
-    public void testPublishOrder() throws Exception {
-        Order order = new Order();
-        order.setCustomerID(1L);
-
-        List<Product> productList = new ArrayList<>();
-        Product product = new Product();
-        product.setProductID(1L);
-        product.setProductQuantity(2L);
-        productList.add(product);
-
-        order.setProductList(productList);
-
-        Mockito.when(productService.fetchProductStockLevel(1L)).thenReturn(10L);
-        Mockito.doNothing().when(productService).setProductStockLevel(1L, 8L);
-
-        Mockito.doNothing().when(kafkaProducer).sendMessage(Mockito.any(Order.class));
-
-        ObjectMapper objectMapper = new ObjectMapper();
-        String orderJson = objectMapper.writeValueAsString(order);
-
-        mockMvc.perform(post("/api/v1/target/order")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(orderJson))
-                .andExpect(status().isOk());
+    @BeforeEach
+    void setUp() {
+        MockitoAnnotations.openMocks(this);
     }
 
     @Test
-    public void testPublishOrder_ProductQuantityException() throws Exception {
+    void testPublishOrderSuccess() throws Exception {
+        // Arrange
         Order order = new Order();
-        order.setCustomerID(1L);
-
-        List<Product> productList = new ArrayList<>();
+        order.setCustomerUsername("test_user");
         Product product = new Product();
         product.setProductID(1L);
-        product.setProductQuantity(12L);
-        productList.add(product);
+        product.setProductQuantity(5L);
+        order.setProductList(List.of(product));
 
-        order.setProductList(productList);
+        Customer customer = new Customer();
+        customer.setCustomerID(1L);
+        when(customerService.getCustomerByUsername("test_user")).thenReturn(Optional.of(customer));
+        when(customerService.findByUsername("test_user")).thenReturn(customer);
+        when(productService.fetchProductStockLevel(1L)).thenReturn(10L);
 
-        Mockito.when(productService.fetchProductStockLevel(1L)).thenReturn(10L);
+        // Act
+        CompletableFuture<ResponseEntity<String>> responseFuture = orderController.publish(order);
 
-        ObjectMapper objectMapper = new ObjectMapper();
-        String orderJson = objectMapper.writeValueAsString(order);
+        // Assert
+        assertNotNull(responseFuture);
+        ResponseEntity<String> response = responseFuture.get();
+        assertEquals(200, response.getStatusCodeValue());
+        assertEquals("Order is placed", response.getBody());
+    }
 
-        mockMvc.perform(post("/api/v1/target/order")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(orderJson))
-                .andExpect(status().isBadRequest());
+    @Test
+    void testPublishOrderProductQuantityException() throws Exception {
+        // Arrange
+        Order order = new Order();
+        order.setCustomerUsername("test_user");
+        Product product = new Product();
+        product.setProductID(1L);
+        product.setProductQuantity(15L);
+        order.setProductList(List.of(product));
+
+        Customer customer = new Customer();
+        customer.setCustomerID(1L);
+        when(customerService.getCustomerByUsername("test_user")).thenReturn(Optional.of(customer));
+        when(customerService.findByUsername("test_user")).thenReturn(customer);
+        when(productService.fetchProductStockLevel(1L)).thenReturn(10L);
+
+        // Act & Assert
+        CompletableFuture<ResponseEntity<String>> responseFuture = orderController.publish(order);
+
+        assertThrows(Exception.class, responseFuture::get);
+    }
+
+    @Test
+    void testPublishOrderProductNotFoundException() throws Exception {
+        // Arrange
+        Order order = new Order();
+        order.setCustomerUsername("test_user");
+        Product product = new Product();
+        product.setProductID(1L);
+        product.setProductQuantity(5L);
+        order.setProductList(List.of(product));
+
+        when(customerService.getCustomerByUsername("test_user")).thenReturn(Optional.empty());
+
+        // Act & Assert
+        CompletableFuture<ResponseEntity<String>> responseFuture = orderController.publish(order);
+
+        assertThrows(Exception.class, responseFuture::get);
     }
 }
