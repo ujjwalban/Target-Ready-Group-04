@@ -12,9 +12,14 @@ import com.targetindia.EcomStreaming.service.OrderServiceImpl;
 import com.targetindia.EcomStreaming.service.ProductServiceImpl;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.mockito.Mock;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import io.github.resilience4j.circuitbreaker.CircuitBreakerRegistry;
+import io.github.resilience4j.circuitbreaker.CircuitBreaker;
+import io.github.resilience4j.circuitbreaker.CallNotPermittedException;
+
 
 import java.util.ArrayList;
 import java.util.List;
@@ -43,13 +48,20 @@ public class ProductServiceImplTest {
     @MockBean
     private ProductRepository productRepository;
 
+    @Mock
+    private CircuitBreakerRegistry circuitBreakerRegistry;
+
     private Products product;
+    private CircuitBreaker circuitBreaker;
 
     @BeforeEach
     public void setUp() {
         product = new Products();
         product.setProductID(1L);
         product.setStockLevel(10L);
+        circuitBreaker = CircuitBreaker.ofDefaults("productService");
+        when(circuitBreakerRegistry.circuitBreaker("productService")).thenReturn(circuitBreaker);
+
     }
 
     @Test
@@ -92,5 +104,23 @@ public class ProductServiceImplTest {
         List<Products> result = productService.displayAllProducts();
         assertEquals(1, result.size());
         assertEquals(product, result.get(0));
+    }
+
+    @Test
+    public void testDisplayAllProductsFallback() {
+        // Simulate circuit breaker open state
+        circuitBreaker.transitionToOpenState();
+
+        List<Products> result = productService.displayAllProducts();
+        assertTrue(result.isEmpty());
+    }
+
+    @Test
+    public void testDisplayAllProductsException() {
+        // Simulate service failure
+        when(productRepository.findAll()).thenThrow(new RuntimeException("Simulated service failure"));
+
+        List<Products> result = productService.displayAllProducts();
+        assertTrue(result.isEmpty());
     }
 }

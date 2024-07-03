@@ -8,6 +8,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import io.github.resilience4j.circuitbreaker.annotation.CircuitBreaker;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -50,6 +51,7 @@ public class ArchivedOrdersServiceImpl implements ArchivedOrdersService {
 
 
     @Override
+    @CircuitBreaker(name = "archivedOrdersService", fallbackMethod = "fallbackArchiveExpiredOrders")
     public void archiveExpiredOrders() {
         Date currentDate = new Date();
         List<Order> expiredOrders = getOrdersExpiringBefore(currentDate);
@@ -70,6 +72,12 @@ public class ArchivedOrdersServiceImpl implements ArchivedOrdersService {
             archivedOrderRepository.saveAll(archivedOrders);
             orderRepository.deleteAll(expiredOrders);
         }
+    }
+    public void fallbackArchiveExpiredOrders(Throwable throwable) {
+        // Log the exception or handle it as needed
+        logger.error("Fallback method triggered due to: {}", throwable.getMessage());
+
+        // Implement fallback logic, such as notifying administrators or retrying later
     }
 }
 
